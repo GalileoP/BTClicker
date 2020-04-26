@@ -5,7 +5,7 @@ import javax.swing.*;
 import java.util.*;
 import java.util.Timer;
 public class BTClicker implements ActionListener {
-	//currentPrice = trenutna cena BTC na 1€112
+	//currentPrice = trenutna cena BTC na 1€
 	static double btc = 0, eur = 0, currentPrice = 0.00015, clickStrength = 0.000001, pcPower = 0;
 	static int clickerLevel = 0, clickerUpgradeCost = 1, tiers = 0, pcTier = 0, s = 0;
 	static JButton clicker, convert, upgradeClicker, pc1, surprise, invest;
