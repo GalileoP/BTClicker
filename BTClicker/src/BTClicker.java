@@ -1,4 +1,3 @@
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,9 +5,9 @@ import javax.swing.*;
 import java.util.*;
 import java.util.Timer;
 public class BTClicker implements ActionListener {
-	//currentPrice = trenutna cena BTC na 1€
-	static double btc = 0, eur = 5000, currentPrice = 0.00015, clickStrength = 0.000001, pcPower = 0;
-	static int clickerLevel = 0, clickerUpgradeCost = 1, tiers = 0, pcTier = 0;
+	//currentPrice = trenutna cena BTC na 1€112
+	static double btc = 0, eur = 0, currentPrice = 0.00015, clickStrength = 0.000001, pcPower = 0;
+	static int clickerLevel = 0, clickerUpgradeCost = 1, tiers = 0, pcTier = 0, s = 0;
 	static JButton clicker, convert, upgradeClicker, pc1, surprise, invest;
 	static JLabel currentBtc, currentEur, clickerUpgrade, pcStatus, btcPs, clickerStrength, eurDifference;
 	static JFrame f;
@@ -19,8 +18,6 @@ public class BTClicker implements ActionListener {
 	
 	public static void main(String[] args) {
 		f = new JFrame("BTClicker");
-		f.setBackground(Color.GRAY);
-		
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(null);
 		
@@ -32,6 +29,7 @@ public class BTClicker implements ActionListener {
 		
 		clicker = new JButton("Mine BTC!");
 		convert = new JButton("Transfer to EUR");
+		clickerUpgrade = new JLabel("Clicker level: "+clickerLevel);
 		upgradeClicker = new JButton("Level 1: "+clickerUpgradeCost+"€");
 		pc1 = new JButton("PC");
 		pcStatus = new JLabel("<html>PC Status: "+((pcOnline) ? "<font color=green>Online</font></html>" : "<font color=red>Offline</font></html>"));
@@ -39,7 +37,7 @@ public class BTClicker implements ActionListener {
 		clickerStrength = new JLabel("<html>"+String.format("Clicker strength: <br>BTC/pc: %.6f", clickStrength)+"</html>");
 		surprise = new JButton("Surprise / Cost - 1BTC");
 		invest = new JButton("Stock Market");
-		eurDifference = new JLabel("test");
+		eurDifference = new JLabel("0");
 		eurDifference.setVisible(false);
 		
 		JButton[] buttons = {clicker, convert, upgradeClicker, pc1, surprise, invest};
@@ -49,7 +47,8 @@ public class BTClicker implements ActionListener {
 		for(int i = 0; i < powerSupplied.length; i++) {
 			powerSupplied[i] = 0;
 		}
-
+		
+		//Nastavim pozicijo komponent
 		clicker.setBounds(10, 60, 100, 30);
 		convert.setBounds(120, 60, 130, 30);
 		upgradeClicker.setBounds(10, 140, 130, 30);
@@ -60,24 +59,23 @@ public class BTClicker implements ActionListener {
 		surprise.setBounds(300, 190, 180, 30);
 		invest.setBounds(300, 140, 120, 30);
 		eurDifference.setBounds(370, 50, 120, 20);
+		clickerUpgrade.setBounds(10, 100, 280, 50);
+		currentBtc.setBounds(10, 0, 250, 50);
+		currentEur.setBounds(300, 0, 250, 50);
+		
+		//dodam jih na panel
 		mainPanel.add(eurDifference);
 		mainPanel.add(pcStatus);
 		mainPanel.add(btcPs);
 		mainPanel.add(clickerStrength);
 		mainPanel.add(surprise);
 		mainPanel.add(invest);
-		
-		clickerUpgrade = new JLabel("Clicker level: "+clickerLevel);
-		
-		clickerUpgrade.setBounds(10, 100, 280, 50);
 		mainPanel.add(clickerUpgrade);
-		
-		currentBtc.setBounds(10, 0, 250, 50);
 		mainPanel.add(currentBtc);
-		
-		currentEur.setBounds(300, 0, 250, 50);
 		mainPanel.add(currentEur);
 		
+		upgradeClicker.setEnabled(false);
+
 		f.add(mainPanel);
 		f.setSize(510, 300);
 		f.setVisible(true);
@@ -85,17 +83,15 @@ public class BTClicker implements ActionListener {
 		f.setResizable(false);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		
 		timer.scheduleAtFixedRate(new TimerTask() {
 			public void run() {
 				if(eurDifference.isVisible()) {s++;}
 				if(s == 2) {
 					eurDifference.setVisible(false);
 					s = 0;
-				}
+				}			
 			}
-		}, 200, 1000);
-		
+		}, 200, 1000);		
 	}
 	
 	public static void configureComponents(JButton[] buttons, JPanel panel) {
@@ -108,7 +104,6 @@ public class BTClicker implements ActionListener {
 		}
 	}
 	
-	static int s = 0;
 	public void actionPerformed(ActionEvent e) {
 		double oldEur = eur;
 		if(e.getSource() == clicker) {
@@ -130,19 +125,20 @@ public class BTClicker implements ActionListener {
 			}
 		}else if(e.getSource() == pc1) {
 			generateParts(true);
+			
 		}else if(e.getSource() == surprise && btc >= 1) {
 			JOptionPane.showMessageDialog(f, "You got scammed", "Scam", JOptionPane.INFORMATION_MESSAGE);
 			btc -= 1;
+			
 		}else if(e.getSource() == invest) {
-			//if(pcTier >= 1) {
+			if(pcTier >= 1) {
 				stockMarket();
-			//} else {
-				//JOptionPane.showMessageDialog(f, "You need atleast PC Tier 1 to access stock market!", "Denied", JOptionPane.INFORMATION_MESSAGE);
-			//}
+			} else {
+				JOptionPane.showMessageDialog(f, "You need atleast PC Tier 1 to access stock market!", "Denied", JOptionPane.INFORMATION_MESSAGE);
+			}
 		}
 		
-		
-		
+		//PC
 		if(partsCreated) {
 			for(int i = 0; i < buttons.length; i++) {
 				if(e.getSource() == buttons[i] && (eur >= prices[i])) {
@@ -174,37 +170,38 @@ public class BTClicker implements ActionListener {
 				}
 			}			
 		}
-		/////
-		/*
-		if(e.getSource() == buySell) {
-			
-			if(buySell.getText().equals("Buy") && eur >= (applePrice*Integer.parseInt(amountOfShares.getText()))) {
-				eur -= applePrice * Integer.parseInt(amountOfShares.getText());
-				currentShares += Integer.parseInt(amountOfShares.getText());
-				appleShares.setText("Shares: "+(int)currentShares);
-				buySell.setText("Sell");
-				buy = false;
-				amountOfShares.setText("");
-			}else {
-				eur += (applePrice * currentShares);
-				currentShares = 0;
-				appleShares.setText("Shares: "+currentShares);
-				buySell.setText("Buy");
-				buy = true;
-			}
-		}
-		*/
-		for(JButton button : buySell1) {
+		
+		//Stock  market stuff
+		for(JButton button : buySell) {
 			if(e.getSource() == button) {
-				double sharePrice = 0;
-				if(button == buySell1[0]) {
-					sharePrice = applePrice * Integer.parseInt(amountOfShares.getText());
+				for(int i = 0; i < buySell.length; i++)  {
+					try {
+						boughtShares[i] = Integer.parseInt(sharesAmount[i].getText());
+					}catch(Exception e1) {}
 					
-				}else if(button == buySell1[1]) {
-					sharePrice = kadriolliPrice * Integer.parseInt(amountOfShares.getText());
-					
-				}else {
-					sharePrice = parkPrice * Integer.parseInt(amountOfShares.getText());
+					double sharePrice = 0;
+					if(button == buySell[i] && buySell[i].getText().equals("Buy")) {
+						try {
+							sharePrice = stockPrices[i] * boughtShares[i];
+							if((eur-sharePrice) >= 0) {
+								eur -= sharePrice;
+								Integer.parseInt(sharesAmount[i].getText());
+								sharesAmount[i].setText("");
+								buySell[i].setText("Sell");
+							}else {
+								int maxShares = (int)(eur / stockPrices[i]);
+								JOptionPane.showMessageDialog(market, "You can currently buy max "+maxShares+" shares!", "Not enough money", JOptionPane.ERROR_MESSAGE);
+							}
+						}catch(Exception e2) {
+							JOptionPane.showMessageDialog(market, "Please enter amount of shares!", "Error", JOptionPane.ERROR_MESSAGE);
+						}
+					}else if(button == buySell[i] && buySell[i].getText().equals("Sell")) {
+						sharePrice += stockPrices[i] * boughtShares[i];
+						eur += sharePrice;
+						boughtShares[i] = 0;
+						buySell[i].setText("Buy");
+					}
+					boughtSharesL[i].setText("Shares: "+boughtShares[i]);
 				}
 			}
 		}
@@ -218,9 +215,8 @@ public class BTClicker implements ActionListener {
 			eurDifference.setText("<html><font color="+color+"'>"+String.format(mop+"%.2f€", difference)+"</font></html>");
 		}
 		////
-		
 		if(tier[0] == 0) {pcTier = 0;}else buttons[0].setText("PC Case");
-		//
+		
 		pcOnline = (tiers >= 7) ? true : false;
 		//
 		generateParts(false);
@@ -235,6 +231,7 @@ public class BTClicker implements ActionListener {
 	}
 	
 	public static void disableButtons() {
+		upgradeClicker.setEnabled((eur < clickerUpgradeCost) ? false : true);
 		
 		for(int i = 0; i < prices.length; i++) {
 			if(prices[i] > eur || tier[i] != (pcTier) || tier[i] >= maxTier[i]) {
@@ -297,11 +294,9 @@ public class BTClicker implements ActionListener {
 								+comps[i]+(max ? "" : " - "+prices[i]+"€"));
 		}
 		
-		if(pcOnline && !autoMineOnline) {
-			autoMine();
-		}
+		if(pcOnline && !autoMineOnline) {autoMine();}
 		
-		//tabele
+		//preveri, èe je okno odprto
 		if(open) {
 			parts.setLayout(null);
 			parts.setVisible(true);
@@ -322,103 +317,104 @@ public class BTClicker implements ActionListener {
 				currentBtc.setText(String.format("BTC: %.6f", btc));
 			}
 		}, 250, 250);
-	}
+	}	
 	
-	static boolean running = false, buy = true;
+	static boolean running = false;
 	static double change = 0, currentShares;
 	static double currentShares1[] = new double[3];
-	static JButton buySell, max;
-	static boolean[] buy1 = {true, true, true};
-	static JButton[] buySell1 = new JButton[3];
+	static JButton max;
+	
 	static JLabel apple, appleShares;
 	static JTextField amountOfShares;
+	
+	static JLabel[] shares= new JLabel[3];
+	
 	static double applePrice = 276.75, kadriolliPrice = 1.98, parkPrice = 15.02;
 	static double[] stockPrices = {applePrice, kadriolliPrice, parkPrice};
+	static double[] priceChanges = new double[3];
+	
+	static int[] boughtShares = new int[3];
+	
+	static boolean[] buy = {true, true, true};
+	static JButton[] buySell = new JButton[3];
+	
+	static JTextField[] sharesAmount = new JTextField[3];
+	static JLabel[] boughtSharesL = new JLabel[3];
+	
+	static String[] companyName = {"Apple", "Kadriolli d.o.o.", "Pizzeria Park"};
+	
+	static JFrame market;
+	
 	public static void stockMarket() {
 		
-		//per 1 share
-		JFrame market = new JFrame("Stock Market");
+		BTClicker bc = new BTClicker();
+		market = new JFrame("Stock Market");
 		
 		market.setVisible(true);
-		market.setSize(500, 250);
+		market.setSize(500, 230);
 		market.setLocationRelativeTo(f);
 		market.setLayout(null);
+		market.setResizable(false);
 		
 		Random random = new Random();
 		
-		double priceChange[] = new double[3];
-		
-		
-		apple = new JLabel(String.format("Apple stocks: %.2f€", applePrice));
-		apple.setFont(new Font(apple.getName(), Font.CENTER_BASELINE, 15));
-		//apple.setText(String.format("Apple stocks: %.2f€", applePrice));
-		apple.setBounds(20, 25, 150, 20);
-		market.add(apple);
-		
-		BTClicker bc = new BTClicker();
-		
-		for(int i = 0; i < buySell1.length; i++) {
-			buySell1[i] = new JButton(buy1[i] ? "Buy" : "Sell");
+		for(int i = 0, y = 25; i < shares.length; i++, y+=50) {
+			
+			//Label1 - Name+price
+			shares[i] = new JLabel(String.format(companyName[i]+" stocks: %.2f€", stockPrices[i]));
+			shares[i].setFont(new Font(shares[i].getName(), Font.CENTER_BASELINE, 14));
+			shares[i].setBounds(20, y+9, 200, 20);
+			market.add(shares[i]);
+			
+			//Buttons
+			buySell[i] = new JButton(buy[i] ? "Buy" : "Sell");
+			buySell[i].setBounds(250, y+5, 60, 30);
+			buySell[i].addActionListener(bc);
+			buySell[i].setFocusable(false);
+			market.add(buySell[i]);
+			
+			//TextFields
+			sharesAmount[i] = new JTextField();
+			sharesAmount[i].setBounds(330, y+5, 60, 30);
+			market.add(sharesAmount[i]);
+			
+			//Label2 - kolicina kupljenih shares
+			boughtSharesL[i] = new JLabel("Shares: "+boughtShares[i]);
+			boughtSharesL[i].setBounds(400, y+5, 110, 30);
+			market.add(boughtSharesL[i]);
 		}
-
-		//buySell = new JButton(buy ? "Buy" : "Sell");
-		buySell1[0].setBounds(220, 20, 60, 30);
-		buySell1[0].addActionListener(bc);
-		market.add(buySell1[0]);
 		
-		
-		amountOfShares = new JTextField();
-		amountOfShares.setBounds(300, 20, 60, 30);
-		market.add(amountOfShares);
-		
-		appleShares = new JLabel("Shares: "+(int)currentShares);
-		appleShares.setBounds(370, 20, 110, 30);
-		market.add(appleShares);
+		double priceChange[][] = new double[3][3];
 		
 		if(!running) {
 			timer.scheduleAtFixedRate(new TimerTask() {
 				public void run() {
-					//System.out.println("test");
-					priceChange[0] = random.nextInt(4);
+					priceChange[0][0] = random.nextInt(4);
+					priceChange[1][0] = ((double)random.nextInt(11)) / 100;
+					priceChange[2][0] = random.nextInt(3);
+					
 					for(int i = 1, j = 10; i < priceChange.length; i++, j+=90) {
-						priceChange[i] = (random.nextInt(10));
-						priceChange[i] /= j;
+						priceChange[0][i] = random.nextInt(10);
+						priceChange[0][i] /= j;
+						priceChange[2][i] = random.nextInt(6);
+						priceChange[2][i] /= j;
 					}
 					
-					for(double ch : priceChange) {
-						change+=ch;
+					for(int i = 0; i < priceChange.length; i++) {
+						priceChanges[i] = 0;
+						for(int j = 0; j < priceChange.length; j++) {
+							priceChanges[i] += priceChange[i][j];
+						}
 					}
-					applePrice += (random.nextInt(2) == 1) ? change : (-1 * change);
-					change = 0;
-					//System.out.println(String.format("%.2f", applePrice));
-					apple.setText(String.format("Apple stocks: %.2f€", applePrice));
+					
+					for(int i = 0; i < stockPrices.length; i++) {
+						stockPrices[i] += (random.nextInt(2) == 1) ? priceChanges[i] : (-1 * priceChanges[i]);
+						if(stockPrices[i] <= 0) stockPrices[i] = 0.01;
+						shares[i].setText(String.format(companyName[i]+" stocks: %.2f€", stockPrices[i]));
+					}
 				}
 			}, 0, 1000);
 			running = true;
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }
